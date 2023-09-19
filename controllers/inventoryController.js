@@ -19,7 +19,6 @@ const addItem = async (req, res) => {
         userEmail,
         items: [],
       });
-      console.log("inside if statement");
     }
 
     const newItem = {
@@ -108,9 +107,43 @@ const getInventory = async (req, res) => {
   }
 }
 
+const deleteItem = async (req, res) => {
+  try {
+    // Retrieve the user's email from the JWT token
+    const userEmail = req.user.email;
+    // Retrieve the item name from the request body
+    const { itemName } = req.body;
+
+    // Find the user's inventory
+    const inventory = await Inventory.findOne({ userEmail });
+    if (!inventory) {
+      return res.status(404).json({ message: 'User\'s inventory not found' });
+    }
+
+    // Get item index
+    const itemIndex = inventory.items.findIndex(item => item.itemName === itemName)
+    if (itemIndex === -1) {
+      return res.status(404).json({ message: 'Item not found in inventory' });
+    }
+
+
+    // Delete the item from the inventory
+    // Filter out the item to delete from the inventory's 'items' array
+    inventory.items = inventory.items.filter(item => item.itemName !== itemName);
+    inventory.markModified('items'); // Important: let know that the items array has been modified
+    await inventory.save();
+
+    return res.status(200).json({ message: 'Item deleted successfully', inventory: inventory.items });
+    
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+}
 module.exports = {
   addItem,
   updateItem,
   getInventory,
+  deleteItem,
   // Add more controller functions as needed
 };
