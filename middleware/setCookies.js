@@ -1,4 +1,3 @@
-// middleware/setCookies.js
 const jwt = require('jsonwebtoken');
 
 const setCookies = (token, res) => {

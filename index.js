@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 
-app.use(cors());
+app.use(cors()); //allow cross-origin requests from localhost
 app.use(bodyParser.json());
 app.use(cookieParser());
 
@@ -14,6 +14,13 @@ app.use(cookieParser());
 const userRoutes = require('./routes/userRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
 //Ex: localhost:3000/api/users/register
+
+/**
+ * Flow of the application:
+ * Index.js is the entry point of the application, it routes incoming requests to the appropriate route handler (ex:userRoutes.js).
+ * userRoutes.js calls the appropriate controller function (ex: userController.js) to handle the request.
+ */
+
 app.use('/api/users', userRoutes);
 app.use('/api/inventory', inventoryRoutes);
 // Add more routes as needed
