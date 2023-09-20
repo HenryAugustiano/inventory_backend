@@ -34,7 +34,6 @@ const login = async (req, res) => {
   try {
     // Find the user by email
     const user = await User.findOne({ email });
-
     if (!user) {
       return res.status(401).json({ message: 'No user found' });
     }
@@ -51,7 +50,7 @@ const login = async (req, res) => {
     // Set the token as a cookie
     setCookies(token, res);
 
-    res.status(200).json({ message: 'Authentication successful', token: token });
+    res.status(200).json({ message: 'Authentication successful'});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
