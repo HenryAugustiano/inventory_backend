@@ -50,15 +50,25 @@ const login = async (req, res) => {
     // Set the token as a cookie
     setCookies(token, res);
 
-    res.status(200).json({ message: 'Authentication successful'});
+    res.status(200).json({ message: 'Authentication successful', token});
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Server error' });
   }
 };
 
+const getUserInfo = async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    return res.status(200).json({ email: userEmail });
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   register,
   login,
+  getUserInfo,
   // Add more controller functions as needed
 };
