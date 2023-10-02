@@ -8,6 +8,7 @@ router.post('/addInventory',verifyCookies, inventoryController.addItem);
 router.put('/updateInventory',verifyCookies, inventoryController.updateItem);
 router.get('/getInventory',verifyCookies, inventoryController.getInventory);
 router.delete('/deleteInventory',verifyCookies, inventoryController.deleteItem);
+router.post('/sellItem',verifyCookies, inventoryController.sellItem);
 // Add more routes as needed
 
 module.exports = router;
