@@ -18,6 +18,7 @@ const addItem = async (req, res) => {
       inventory = new Inventory({
         userEmail,
         items: [],
+        inventoryTransactions: [],
       });
     }
 
@@ -140,10 +141,86 @@ const deleteItem = async (req, res) => {
     res.status(500).json({ message: 'Server error' });
   }
 }
+
+const sellItem = async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    const { itemName, itemSold } = req.body;
+
+    const inventory = await Inventory.findOne({ userEmail });
+
+    const itemIndex = inventory.items.findIndex(item => item.itemName === itemName);
+
+    // Ensure the item exists in the inventory
+    if (itemIndex === -1 || inventory.items[itemIndex].itemQuantity < itemSold) {
+      return res.status(400).json({ message: 'Invalid item or insufficient quantity' });
+    }
+    
+    // Decrease the item quantity
+    inventory.items[itemIndex].itemQuantity -= itemSold;
+    inventory.markModified('items'); // Important: let know that the items array has been modified
+
+    // Add transaction history
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+
+    // Check if there's an existing transaction for the current month
+    const currentMonthTransaction = inventory.inventoryTransactions.find(
+      transaction => transaction.month === currentMonth && transaction.year === currentYear
+    );
+
+    if (currentMonthTransaction) {
+      // Update existing transaction for the current month
+      currentMonthTransaction.totalItemsSold += itemSold;
+      // Check if the item already exists in the soldItems array
+      const soldItemIndex = currentMonthTransaction.soldItems.findIndex(
+        soldItem => soldItem.itemName === itemName
+      );
+      if (soldItemIndex !== -1) {
+        currentMonthTransaction.soldItems[soldItemIndex].quantitySold += itemSold;
+      } else {
+        // Add a new entry for the item in soldItems array
+        currentMonthTransaction.soldItems.push({
+          itemName,
+          quantitySold: itemSold,
+          totalSales: itemSold * inventory.items[itemIndex].itemPrice,
+        });
+      }
+    } else {
+      // Create a new transaction for the current month
+      const newTransaction = {
+        month: currentMonth,
+        year: currentYear,
+        totalItemsSold: itemSold,
+        soldItems: [
+          {
+            itemName,
+            quantitySold: itemSold,
+            totalSales: itemSold * inventory.items[itemIndex].itemPrice,
+          },
+        ],
+      };
+      inventory.inventoryTransactions.push(newTransaction);
+    }
+
+    await inventory.save();
+
+
+    return res.status(200).json({ message: 'Item sold successfully', inventory: inventory.items });
+
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+
+
 module.exports = {
   addItem,
   updateItem,
   getInventory,
   deleteItem,
+  sellItem,
   // Add more controller functions as needed
 };
