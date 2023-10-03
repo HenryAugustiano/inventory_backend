@@ -204,6 +204,7 @@ const sellItem = async (req, res) => {
       inventory.inventoryTransactions.push(newTransaction);
     }
 
+    inventory.markModified('inventoryTransactions'); // Important: let know that the inventoryTransactions array has been modified
     await inventory.save();
 
 
