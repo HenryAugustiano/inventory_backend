@@ -215,6 +215,23 @@ const sellItem = async (req, res) => {
   }
 }
 
+const getItem = async (req, res) => {
+  try {
+    const userEmail = req.user.email;
+    const { itemName } = req.query;
+    const inventory = await Inventory.findOne({ userEmail });
+    const item = inventory.items.find(item => item.itemName === itemName);
+
+    if (!item) {
+      return res.status(404).json({ message: 'Item not found' });
+    }else{
+      return res.status(200).json({ message: 'Item found', item: item });
+    }
+  } catch (error) {
+    return res.status(500).json({ message: 'Server error' });
+  }
+}
+
 
 
 module.exports = {
@@ -223,5 +240,6 @@ module.exports = {
   getInventory,
   deleteItem,
   sellItem,
+  getItem,
   // Add more controller functions as needed
 };
