@@ -10,6 +10,7 @@ router.get('/getInventory',verifyCookies, inventoryController.getInventory);
 router.delete('/deleteInventory',verifyCookies, inventoryController.deleteItem);
 router.post('/sellItem',verifyCookies, inventoryController.sellItem);
 router.get('/getItem',verifyCookies, inventoryController.getItem);
+router.get('/Top5Item',verifyCookies, inventoryController.getTop5Item);
 // Add more routes as needed
 
 module.exports = router;

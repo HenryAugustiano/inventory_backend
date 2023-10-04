@@ -112,8 +112,8 @@ const deleteItem = async (req, res) => {
   try {
     // Retrieve the user's email from the JWT token
     const userEmail = req.user.email;
-    // Retrieve the item name from the request body
-    const { itemName } = req.body;
+    // Retrieve the item name from the request parameters
+    const { itemName } = req.query;
 
     // Find the user's inventory
     const inventory = await Inventory.findOne({ userEmail });
@@ -162,7 +162,7 @@ const sellItem = async (req, res) => {
 
     // Add transaction history
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth();
+    const currentMonth = currentDate.getMonth()+1;
     const currentYear = currentDate.getFullYear();
 
     // Check if there's an existing transaction for the current month
@@ -208,7 +208,7 @@ const sellItem = async (req, res) => {
     await inventory.save();
 
 
-    return res.status(200).json({ message: 'Item sold successfully', inventory: inventory.items });
+    return res.status(200).json({ message: 'Item sold successfully'});
 
   } catch (error) {
     console.error(error);
@@ -232,6 +232,37 @@ const getItem = async (req, res) => {
   }
 }
 
+const getTop5Item = async (req, res) => {
+  const userEmail = req.user.email;
+
+  // Find the user's inventory
+  const inventory = await Inventory.findOne({ userEmail });
+
+  if (!inventory) {
+    return res.status(404).json({ message: 'User\'s inventory not found' });
+  }
+
+  const currMonth = new Date().getMonth() + 1;
+  const currYear = new Date().getFullYear();
+
+  const currMonthTransaction = inventory.inventoryTransactions.find(
+    transaction => transaction.month === currMonth && transaction.year === currYear
+  );
+
+  if (!currMonthTransaction) {
+    return res.status(404).json({ message: 'No transaction found for the current month' });
+  }
+
+  // Sort the soldItems array by quantitySold in descending order
+  currMonthTransaction.soldItems.sort((a, b) => b.quantitySold - a.quantitySold);
+
+  // Return the top 5 items
+  currMonthTransaction.soldItems = currMonthTransaction.soldItems.slice(0, 5);
+
+  return res.status(200).json({ message: 'Top 5 items', top5Items: currMonthTransaction.soldItems });
+
+}
+
 
 
 module.exports = {
@@ -241,5 +272,6 @@ module.exports = {
   deleteItem,
   sellItem,
   getItem,
+  getTop5Item,
   // Add more controller functions as needed
 };
