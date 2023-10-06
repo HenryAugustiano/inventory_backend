@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 
 const testEmail = 'jest@gmail.com';
 const testPassword = 'jest123';
+let token;
 
 describe('User Registration', () => {
   it('should register a new user', async () => {
@@ -69,6 +70,7 @@ describe('User Login', () => {
 
     // Expect the response to contain a token
     expect(res.body.token).toBeTruthy();
+    token = res.body.token;
   });
 
   it('should return login error if credentials are invalid', async () => {
@@ -100,6 +102,93 @@ describe('User Login', () => {
     expect(res.body.message).toBe('No user found');
   });
   
+});
+
+describe('User Info', () => {
+  it('should return user info if the user is logged in', async () => {
+
+    const res = await request(app)
+      .get('/api/users/info')
+      .set('Authorization', `Bearer ${token}`);
+
+    // Expect a successful response
+    expect(res.status).toBe(200);
+    expect(res.body.email).toBe(testEmail);
+  });
+});
+
+describe('User Change Password', () => {
+  it('should return error if fields are missing', async () => {
+    const userData = {
+      email: testEmail,
+      password: testPassword,
+      newPassword: '',
+    };
+    const res = await request(app)
+      .put('/api/users/changePassword')
+      .set('Authorization', `Bearer ${token}`)
+      .send(userData);
+    
+    // Expect a missing fields error response
+    expect(res.status).toBe(405);
+    expect(res.body.message).toBe('Missing required fields');
+  });
+
+  it('should return error if password is the same as new password', async () => {
+    const userData = {
+      email: testEmail,
+      password: testPassword,
+      newPassword: testPassword,
+    };
+
+    const res = await request(app)
+      .put('/api/users/changePassword')
+      .set('Authorization', `Bearer ${token}`)
+      .send(userData);
+
+    // Expect a same password error response
+    expect(res.status).toBe(405);
+    expect(res.body.message).toBe('New password cannot be the same as old password');
+  });
+
+  it('should return error if password is incorrect', async () => {
+    const userData = {
+      email: testEmail,
+      password: 'invalidPassword',
+      newPassword: 'newPassword',
+    };
+
+    const res = await request(app)
+      .put('/api/users/changePassword')
+      .set('Authorization', `Bearer ${token}`)
+      .send(userData);
+
+    // Expect a login error response
+    expect(res.status).toBe(401);
+    expect(res.body.message).toBe('Authentication failed');
+  });
+
+  it('should change the password if the user is logged in', async () => {
+    const userData = {
+      email: testEmail,
+      password: testPassword,
+      newPassword: 'newPassword',
+    };
+
+    const res = await request(app)
+      .put('/api/users/changePassword')
+      .set('Authorization', `Bearer ${token}`)
+      .send(userData);
+
+    // Expect a successful response
+    expect(res.status).toBe(200);
+    expect(res.body.message).toBe('Password changed successfully');
+
+    // Check if the password is changed in the database
+    const savedUser = await User.findOne({ email: userData.email });
+    const passwordMatch = await bcrypt.compare(userData.newPassword, savedUser.password);
+    expect(passwordMatch).toBe(true);
+  });
 });
 
 describe('User Delete', () => {
