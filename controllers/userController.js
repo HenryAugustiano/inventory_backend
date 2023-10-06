@@ -66,6 +66,41 @@ const getUserInfo = async (req, res) => {
   }    
 };
 
+const changePassword = async (req, res) => {
+  try {
+    
+    const { email, password, newPassword } = req.body;
+
+    if(!email || !password || !newPassword){
+      return res.status(405).json({ message: 'Missing required fields' });
+    }
+
+    if(password === newPassword){
+      return res.status(405).json({ message: 'New password cannot be the same as old password' });
+    }
+
+    const user = User.findOne({ email });
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+
+    if(!isPasswordValid){
+      return res.status(401).json({ message: 'Authentication failed' });
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    user.password = hashedPassword;
+
+    user.markModified('password'); // Important: let know that the password has been modified
+    await user.save();
+
+    return res.status(200).json({ message: 'Password changed successfully' });
+  } catch (error) {
+
+    console.error(error);
+    return res.status(500).json({ message: 'Server error' });
+  }
+  
+};
+
 //Backend use only.
 const deleteUser = async (req, res) => {
   try {
@@ -87,5 +122,6 @@ module.exports = {
   login,
   getUserInfo,
   deleteUser,
+  changePassword,
   // Add more controller functions as needed
 };
