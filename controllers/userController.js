@@ -59,11 +59,11 @@ const login = async (req, res) => {
 
 const getUserInfo = async (req, res) => {
   try {
+    const userEmail = req.user.email;
     return res.status(200).json({ email: userEmail });
   } catch (error) {
     return res.status(500).json({ message: 'Server error' });
-  }    const userEmail = req.user.email;
-
+  }    
 };
 
 //Backend use only.
