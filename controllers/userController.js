@@ -68,7 +68,7 @@ const getUserInfo = async (req, res) => {
 
 const changePassword = async (req, res) => {
   try {
-    
+
     const { email, password, newPassword } = req.body;
 
     if(!email || !password || !newPassword){
@@ -79,7 +79,7 @@ const changePassword = async (req, res) => {
       return res.status(405).json({ message: 'New password cannot be the same as old password' });
     }
 
-    const user = User.findOne({ email });
+    const user = await User.findOne({ email });
     const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if(!isPasswordValid){
