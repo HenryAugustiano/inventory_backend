@@ -11,16 +11,17 @@ app.use(cors()); //allow cross-origin requests from localhost
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// //AWS Secret Manager
-// async function getSecretKey(secretName) {
-//   try {
-//     const secret = await getSecretKey(secretName);
-//     return secret;
-//   } catch (error) {
-//     console.error('Error retrieving secret:', error);
-//     throw error;
-//   }
-// }
+// AWS Secret Manager
+async function getSecret(secretName) {
+  try {
+    const secret = await getSecretKey(secretName);
+    return secret;
+  }
+  catch (error) {
+    console.error('Error retrieving secret:', error);
+    throw error;
+  }
+}
 // Route handlers
 const userRoutes = require('./routes/userRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
@@ -52,14 +53,14 @@ app.use('/api/inventory', inventoryRoutes);
 
 
 // MongoDB Atlas connection URL
-const mongoURI = process.env.MONGO_URI || getSecretKey('MONGO_URI');
+const mongoURI = process.env.MONGO_URI || getSecret('MONGO_URI');
 
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 
 // Start the server
-const PORT = process.env.PORT || getSecretKey('PORT') || 3001;
+const PORT = process.env.PORT || getSecret('PORT') || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
