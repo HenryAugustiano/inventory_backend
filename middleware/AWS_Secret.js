@@ -1,22 +1,28 @@
 const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 
-async function getSecretKey(secretName) {
+async function getSecretKey() {
+  const secret_name = "Inventorybackend.env";
   const client = new SecretsManagerClient({
     region: "us-east-2",
   });
 
+  let response;
+
   try {
-    const response = await client.send(
+    response = await client.send(
       new GetSecretValueCommand({
-        SecretId: secretName,
-        VersionStage: "AWSCURRENT",
+        SecretId: secret_name,
+        VersionStage: "AWSCURRENT", // VersionStage defaults to AWSCURRENT if unspecified
       })
     );
-    return response.SecretString;
   } catch (error) {
-    console.error('Error retrieving secret:', error);
+    console.log(error);
     throw error;
   }
+
+  const secret = response.SecretString;
+  console.log('secret at aws.js',secret);
+  return secret;
 }
 
 module.exports = { getSecretKey };

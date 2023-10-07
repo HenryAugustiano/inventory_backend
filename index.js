@@ -12,9 +12,9 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 
 // AWS Secret Manager
-async function getSecret(secretName) {
+async function getSecret() {
   try {
-    const secret = await getSecretKey(secretName);
+    const secret = await getSecretKey();
     return secret;
   }
   catch (error) {
@@ -55,14 +55,14 @@ app.use('/api/inventory', inventoryRoutes);
 
 
 // MongoDB Atlas connection URL
-const mongoURI = process.env.MONGO_URI || getSecret('MONGO_URI');
-
+const mongoURI =  await getSecret().MONGO_URI;
+console.log('AHDHALWDnLa',mongoURI);
 mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('MongoDB connected'))
   .catch(err => console.log(err));
 
 // Start the server
-const PORT = process.env.PORT || getSecret('PORT') || 3001;
+const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
