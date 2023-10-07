@@ -12,7 +12,7 @@ async function getSecretKey(secretName) {
         VersionStage: "AWSCURRENT",
       })
     );
-    return JSON.parse(response.SecretString);
+    return response.SecretString;
   } catch (error) {
     console.error('Error retrieving secret:', error);
     throw error;
