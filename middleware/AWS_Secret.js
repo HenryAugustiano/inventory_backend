@@ -1,6 +1,6 @@
-import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
+const { SecretsManagerClient, GetSecretValueCommand } = require("@aws-sdk/client-secrets-manager");
 
-export async function getSecret(secretName) {
+async function getSecretKey(secretName) {
   const client = new SecretsManagerClient({
     region: "us-east-2",
   });
@@ -18,3 +18,5 @@ export async function getSecret(secretName) {
     throw error;
   }
 }
+
+module.exports = { getSecretKey };

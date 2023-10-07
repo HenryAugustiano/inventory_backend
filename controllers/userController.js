@@ -3,19 +3,19 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const setCookies = require('../middleware/setCookies');
-import { getSecret } from '../AWS_Secret';
+const { getSecretKey } = require('../middleware/AWS_Secret');
 
 // AWS Secret Manager
-async function getSecret(secretName) {
-  try {
-    const secret = await getSecret(secretName);
-    return secret;
-  }
-  catch (error) {
-    console.error('Error retrieving secret:', error);
-    throw error;
-  }
-}
+// async function getSecretKey(secretName) {
+//   try {
+//     const secret = await getSecretKey(secretName);
+//     return secret;
+//   }
+//   catch (error) {
+//     console.error('Error retrieving secret:', error);
+//     throw error;
+//   }
+// }
 
 const register = async (req, res) => {
   const { email, password } = req.body;
@@ -59,7 +59,7 @@ const login = async (req, res) => {
     }
 
     // Generate a JWT token containing user information and use secret key to sign it
-    const token = jwt.sign({ email: user.email, userId: user._id }, process.env.SECRET_KEY || getSecret('SECRET_KEY'), { expiresIn: '1h' });
+    const token = jwt.sign({ email: user.email, userId: user._id }, process.env.SECRET_KEY || getSecretKey('SECRET_KEY'), { expiresIn: '1h' });
     // Set the token as a cookie
     setCookies(token, res);
 
