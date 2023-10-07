@@ -22,6 +22,8 @@ async function getSecret(secretName) {
     throw error;
   }
 }
+
+(async () => {
 // Route handlers
 const userRoutes = require('./routes/userRoutes');
 const inventoryRoutes = require('./routes/inventoryRoutes');
@@ -66,3 +68,4 @@ app.listen(PORT, () => {
 });
 
 module.exports = app;
+})();
