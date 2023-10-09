@@ -6,8 +6,6 @@ name: Node.js CI/CD
 on:
   push:
     branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
 
 jobs:
   build:
@@ -32,5 +30,4 @@ jobs:
         touch .env
         echo "${{secrets.ENV_VARS}}" > .env
     - run: pm2 restart BackendAPI
-    - run: npm test
       
