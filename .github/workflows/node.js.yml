@@ -32,5 +32,5 @@ jobs:
         touch .env
         echo "${{secrets.ENV_VARS}}" > .env
     - run: pm2 restart BackendAPI
-    # - run: npm test
+    - run: npm test
       
