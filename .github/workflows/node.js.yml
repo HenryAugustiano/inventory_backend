@@ -29,5 +29,5 @@ jobs:
     - run: |
         touch .env
         echo "${{secrets.ENV_VARS}}" > .env
-    # - run: pm2 restart BackendAPI
+    - run: pm2 restart BackendAPI
       
